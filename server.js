@@ -14,7 +14,7 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({message: 'Selamat datang di server manual'}))
     } else if(path === '/users' && method === 'GET'){
         res.writeHead(200)
-        res.end(JSON.stringify({users: ['Wahyu', 'Naila', 'Alya']}));
+        res.end(JSON.stringify({users: ['Khilmi', 'Wahyu', 'Saputra']}));
     } else{
         res.writeHead(404);
         res.end({message: 'Route tidak ditemukan'});
