@@ -1,6 +1,7 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
-const PORT = 3000
+const PORT = process.env.PORT
 
 app.use(express.json())
 
@@ -27,7 +28,10 @@ app.get('/api/users', (req, res) => {
 app.post('/api/login', (req, res) => {
     const {username, password} = req.body
 
-    if(username === 'Wahyu' && password === 'WAHYU123'){
+    const USERNAME = process.env.APP_USERNAME
+    const PASSWORD = process.env.APP_PASSWORD
+
+    if(username === USERNAME && password === PASSWORD){
         res.status(200).json(
             {
                 message: 'Selamat anda berhasil login'
