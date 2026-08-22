@@ -6,6 +6,8 @@ const PORT = process.env.PORT
 const cors = require('../middleware/corsPackage')
 app.use(cors)
 
+const {validateRegister, validateLogin, isValidEmail, isValidUsername, isValidPassword} = require('../middleware/validator')
+
 //middleware
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
@@ -28,6 +30,35 @@ app.get('/', (req, res) => {
             authentication: 'GET/auth',
             hashing: 'POST/register'
         }
+    })
+})
+
+app.post('/validate', (req, res) => {
+    const {email, username, password} = req.body
+
+    res.json({
+        received: {email, username, password},
+        validation: {
+            email: isValidEmail(email),
+            username: isValidUsername(username),
+            password:isValidPassword(password)
+        }
+    })
+})
+
+app.post('/register', validateRegister, (req, res) => {
+    res.json({
+        success: true,
+        message: 'register success',
+        data: req.body
+    })
+})
+
+app.post('/login', validateLogin, (req, res) => {
+    res.json({
+        success: true,
+        message: 'login success',
+        data: req.body
     })
 })
 
