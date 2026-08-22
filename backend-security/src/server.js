@@ -7,6 +7,7 @@ const cors = require('../middleware/corsPackage')
 app.use(cors)
 
 const {validateRegister, validateLogin, isValidEmail, isValidUsername, isValidPassword} = require('../middleware/validator')
+const {sanitizeObject} = require('../middleware/sanitizer')
 
 //middleware
 app.use(express.json())
@@ -59,6 +60,16 @@ app.post('/login', validateLogin, (req, res) => {
         success: true,
         message: 'login success',
         data: req.body
+    })
+})
+
+app.post('/sanitize', (req, res) => {
+    const original = req.body
+    const sanitized = sanitizeObject(req.body);
+    res.json({
+        original: original,
+        sanitized: sanitized,
+        message: 'Data has been sanitized'
     })
 })
 
