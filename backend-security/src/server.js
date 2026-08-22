@@ -8,6 +8,7 @@ app.use(cors)
 
 const {validateRegister, validateLogin, isValidEmail, isValidUsername, isValidPassword} = require('../middleware/validator')
 const {sanitizeObject} = require('../middleware/sanitizer')
+const {basicAuth, requireRole} = require('../middleware/auth')
 
 //middleware
 app.use(express.json())
@@ -72,6 +73,32 @@ app.post('/sanitize', (req, res) => {
         message: 'Data has been sanitized'
     })
 })
+
+app.get('/auth', basicAuth, (req, res) => {
+    res.json({
+        success: true,
+        message: 'Authentication berhasil',
+        user: req.user
+    })
+})
+
+app.get('/admin', basicAuth, requireRole(['admin']), (req, res) => {
+        res.json({
+            success: true,
+            message: 'Kamu boleh mengakses halaman admin',
+            user: req.user
+        })
+    }
+)
+
+app.get('/user', basicAuth, requireRole(['user', 'admin']), (req, res) => {
+        res.json({
+            success: true,
+            message: 'Kamu boleh mengakses halaman user',
+            user: req.user
+        })
+    }
+)
 
 app.listen(PORT, () => {
     console.log(`Berjalan di http://localhost:${PORT}`)
