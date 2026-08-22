@@ -9,6 +9,9 @@ app.use(cors)
 const {validateRegister, validateLogin, isValidEmail, isValidUsername, isValidPassword} = require('../middleware/validator')
 const {sanitizeObject} = require('../middleware/sanitizer')
 const {basicAuth, requireRole} = require('../middleware/auth')
+const {hash, verify} = require('../middleware/hash')
+
+const users = []
 
 //middleware
 app.use(express.json())
@@ -99,6 +102,79 @@ app.get('/user', basicAuth, requireRole(['user', 'admin']), (req, res) => {
         })
     }
 )
+
+app.post('/daftar', async(req, res) => {
+    const {username, password} = req.body
+
+    if(!username || !password){
+        return res.status(400).json({
+            success: false,
+            error: 'Username or password cannot be empty'
+        })
+    }
+
+    console.log('Original password: ', password)
+
+    const hashed = await hash(password)
+
+    console.log('Hashed password: ', hashed)
+    
+    const newUser = {
+        id: users.length + 1,
+        username: username,
+        password: hashed
+    }
+
+    users.push(newUser)
+
+    res.status(200).json({
+        success: true,
+        message: 'register success',
+        user: {
+            id: newUser.id,
+            username: newUser.username
+        }
+    })
+})
+
+app.post('/masuk', async(req, res) => {
+    const {username, password} = req.body
+
+    if(!username || !password){
+        return res.status(400).json({
+            success: false,
+            error: 'Username or password cannot be empty'
+        })
+    }
+
+    const user = users.find(u => u.username === username)
+
+    if(!user){
+        return res.status(400).json({
+            success: false,
+            error: 'Username or password invalid'
+        })
+    }
+
+    const isValidPassword = await verify(password, user.password)
+
+    if(!isValidPassword){
+        return res.status(401).json({
+            success: false,
+            error: 'Username or password invalid'
+        })
+    }
+
+    res.status(200).json({
+        success: true,
+        message: 'login success',
+        user: {
+            id: user.id,
+            username: user.username
+        }
+    })
+
+})
 
 app.listen(PORT, () => {
     console.log(`Berjalan di http://localhost:${PORT}`)
